@@ -18,3 +18,19 @@ For example, +1 for a sliced fruit, +2 for three fruits at once, +3 for four fru
 Personnalize your game to the max for a better user experience. Sounds, music... 
 Give the player the chance to select a difficulty level (spawn frequency, number of fruits...)
 and / or a multilingual support through game menu
+
+### Common grounds :
+
+Constants :
+
+FPS
+WIDTH
+HEIGHT
+
+Variables : 
+
+player_lives 
+score
+fruits
+background
+
