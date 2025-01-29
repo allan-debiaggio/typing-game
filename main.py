@@ -16,13 +16,16 @@ fruits_images = {
     "purple_fruit": pygame.image.load("assets/Purple_fruit.png"),
 }
 bomb_image = pygame.image.load("assets/bomb.png")
+ice_image = pygame.image.load("assets/ice.png")
 
 for key in fruits_images:
     fruits_images[key] = pygame.transform.scale(fruits_images[key], (60, 60))
 bomb_image = pygame.transform.scale(bomb_image, (60, 60))
+ice_image = pygame.transform.scale(ice_image, (60, 60))
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 font = pygame.font.Font(None, 40)
 
 class Fruit:
@@ -38,9 +41,10 @@ class Fruit:
         self.active = True
 
     def move(self):
-        self.vy += self.gravity
-        self.y += self.vy
-        self.x += self.vx
+        if not ice_effect:
+            self.vy += self.gravity
+            self.y += self.vy
+            self.x += self.vx
 
     def draw(self, screen):
         if self.active:
@@ -51,17 +55,23 @@ class Fruit:
 class Bomb(Fruit):
     pass
 
+class Ice(Fruit):
+    pass
+
 clock = pygame.time.Clock()
 running = True
 score = 0
 lives = 3
 fruits = []
 bombs = []
+ices = []
 letters_active = {}
 game_speed = 30
 available_letters = set(string.ascii_uppercase)
 
-def spawn_object(is_bomb=False):
+ice_effect = False
+ice_effect_duration = 0
+def spawn_object(is_bomb=False, is_ice=False):
     global available_letters
     if not available_letters:
         return
@@ -73,6 +83,9 @@ def spawn_object(is_bomb=False):
     if is_bomb:
         obj = Bomb(x, bomb_image, letter)
         bombs.append(obj)
+    elif is_ice:
+        obj = Ice(x, ice_image, letter)
+        ices.append(obj)
     else:
         image = random.choice(list(fruits_images.values()))
         obj = Fruit(x, image, letter)
@@ -81,10 +94,11 @@ def spawn_object(is_bomb=False):
 
 next_spawn_time = random.randint(20, 60)
 next_bomb_spawn_time = random.randint(100, 200)
+next_ice_spawn_time = random.randint(500, 1000)
 
 while running:
-    screen.fill(WHITE)
-    
+    screen.fill(WHITE if not ice_effect else BLUE)
+    pygame.mixer.init()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -92,8 +106,18 @@ while running:
             key = event.unicode.upper()
             if key in letters_active:
                 if isinstance(letters_active[key], Bomb):
-                    lives -= 1
+                    pygame.mixer.Sound("assets/sword.mp3").play()
+                    pygame.mixer.Sound("assets/bomb.mp3").play()
+                    lives = 0
+                elif isinstance(letters_active[key], Ice):
+                    pygame.mixer.Sound("assets/sword.mp3").play()
+                    pygame.mixer.Sound("assets/ice.mp3").play()
+                    pygame.mixer.Sound("assets/sword.mp3").play()
+                    ice_effect = True
+                    ice_effect_duration = pygame.time.get_ticks() + random.randint(2000, 3000)
                 else:
+                    pygame.mixer.Sound("assets/sword.mp3").play()
+                    pygame.mixer.Sound("assets/fruits.mp3").play()
                     score += 1
                     if score % 10 == 0:
                         game_speed += 5
@@ -101,21 +125,31 @@ while running:
                 del letters_active[key]
                 available_letters.add(key)
     
-    next_spawn_time -= 1
-    if next_spawn_time <= 0:
-        spawn_object()
-        next_spawn_time = random.randint(20, 60)
+    if ice_effect and pygame.time.get_ticks() > ice_effect_duration:
+        ice_effect = False
     
-    next_bomb_spawn_time -= 1
-    if next_bomb_spawn_time <= 0:
-        spawn_object(is_bomb=True)
-        next_bomb_spawn_time = random.randint(100, 200)
+    if not ice_effect:
+        next_spawn_time -= 1
+        if next_spawn_time <= 0:
+            spawn_object()
+            next_spawn_time = random.randint(20, 60)
+        
+        next_bomb_spawn_time -= 1
+        if next_bomb_spawn_time <= 0:
+            spawn_object(is_bomb=True)
+            next_bomb_spawn_time = random.randint(100, 200)
+        
+        if score >= 50:
+            next_ice_spawn_time -= 1
+            if next_ice_spawn_time <= 0:
+                spawn_object(is_ice=True)
+                next_ice_spawn_time = random.randint(300, 400)
     
-    for obj_list in [fruits]:
+    for obj_list in [fruits, ices]:
         for obj in obj_list[:]:
             obj.move()
             obj.draw(screen)
-            if obj.y > HEIGHT and obj.active:
+            if obj.y > HEIGHT and obj.active and not isinstance(obj, Ice):
                 lives -= 1
                 obj_list.remove(obj)
                 if obj.letter in letters_active:
@@ -144,6 +178,6 @@ while running:
         running = False
     
     pygame.display.update()
-    clock.tick(game_speed)
+    clock.tick(game_speed if not ice_effect else 0)
 
 pygame.quit()
