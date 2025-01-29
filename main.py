@@ -7,6 +7,10 @@ pygame.init()
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
+
+background_image = pygame.image.load("assets/background.png")
+background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
 fruits_images = {
     "apple": pygame.image.load("assets/apple.png"),
     "banana": pygame.image.load("assets/banana.png"),
@@ -96,7 +100,7 @@ next_bomb_spawn_time = random.randint(100, 200)
 next_ice_spawn_time = random.randint(500, 1000)
 
 while running:
-    screen.fill(WHITE if not ice_effect else BLUE)
+    screen.blit(background_image, (0, 0)) 
     pygame.mixer.init()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
