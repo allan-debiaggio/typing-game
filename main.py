@@ -7,7 +7,6 @@ pygame.init()
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
-
 fruits_images = {
     "apple": pygame.image.load("assets/apple.png"),
     "banana": pygame.image.load("assets/banana.png"),
