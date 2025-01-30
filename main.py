@@ -10,6 +10,9 @@ pygame.display.set_caption("Fruit Slicer")
 
 background_image = pygame.image.load("assets/background.png")
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+button_image = pygame.image.load("assets/classic_mode/classic_log.png")
+
+font = pygame.font.Font("assets/classic_mode/font.ttf", 26)
 
 fruits_images = {
     "apple": pygame.image.load("assets/apple.png"),
@@ -27,9 +30,43 @@ bomb_image = pygame.transform.scale(bomb_image, (60, 60))
 ice_image = pygame.transform.scale(ice_image, (60, 60))
 
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 font = pygame.font.Font(None, 40)
+
+# Game state variables
+game_active = False
+
+def start_game():
+    global score, lives, fruits, bombs, ices, letters_active, available_letters, ice_effect, ice_effect_duration, game_speed, next_spawn_time, next_bomb_spawn_time, next_ice_spawn_time, game_active
+    score = 0
+    lives = 3
+    fruits = []
+    bombs = []
+    ices = []
+    letters_active = {}
+    available_letters = set(string.ascii_uppercase)
+    ice_effect = False
+    ice_effect_duration = 0
+    game_speed = 30
+    next_spawn_time = random.randint(20, 60)
+    next_bomb_spawn_time = random.randint(100, 200)
+    next_ice_spawn_time = random.randint(500, 1000)
+    game_active = True
+
+def quit_game():
+    pygame.quit()
+    exit()
+
+def test():
+    print("Test !!!")
+
+def scores():
+    print("Scores !")
+
+def language():
+    print("Bonjour ! Hello ! Hola !")
 
 class Fruit:
     def __init__(self, x, image, letter):
@@ -55,11 +92,36 @@ class Fruit:
             text = font.render(self.letter, True, RED)
             screen.blit(text, (self.x + 20, self.y - 30))
 
+class Button:
+    def __init__(self, x, y, width, height, text, action):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.action = action 
+        self.image = pygame.transform.scale(button_image, (width, height))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect.topleft)
+        text_surf = font.render(self.text, True, BLACK)
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        screen.blit(text_surf, text_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.action()
+
 class Bomb(Fruit):
     pass
 
 class Ice(Fruit):
     pass
+
+new_game_button = Button(200, 50, 400, 50, "New game", start_game)
+scores_button = Button(200, 125, 400, 50, "Leaderboards", scores)
+render_button = Button(200, 200, 400, 50, "Trigger mode", test)
+language_button = Button(200, 275, 400, 50, "Language", language)
+quit_button = Button(200, 350, 400, 50, "Quit", quit_game)
+buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
 clock = pygame.time.Clock()
 running = True
@@ -74,6 +136,7 @@ available_letters = set(string.ascii_uppercase)
 
 ice_effect = False
 ice_effect_duration = 0
+
 def spawn_object(is_bomb=False, is_ice=False):
     global available_letters
     if not available_letters:
@@ -100,38 +163,41 @@ next_bomb_spawn_time = random.randint(100, 200)
 next_ice_spawn_time = random.randint(500, 1000)
 
 while running:
-    screen.blit(background_image, (0, 0)) 
-    pygame.mixer.init()
+    screen.blit(background_image, (0, 0))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
-            key = event.unicode.upper()
-            if key in letters_active:
-                if isinstance(letters_active[key], Bomb):
-                    pygame.mixer.Sound("assets/sword.mp3").play()
-                    pygame.mixer.Sound("assets/bomb.mp3").play()
-                    lives = 0
-                elif isinstance(letters_active[key], Ice):
-                    pygame.mixer.Sound("assets/sword.mp3").play()
-                    pygame.mixer.Sound("assets/ice.mp3").play()
-                    pygame.mixer.Sound("assets/sword.mp3").play()
-                    ice_effect = True
-                    ice_effect_duration = pygame.time.get_ticks() + random.randint(2000, 3000)
-                else:
-                    pygame.mixer.Sound("assets/sword.mp3").play()
-                    pygame.mixer.Sound("assets/fruits.mp3").play()
-                    score += 1
-                    if score % 10 == 0:
-                        game_speed += 5
-                letters_active[key].active = False
-                del letters_active[key]
-                available_letters.add(key)
-    
-    if ice_effect and pygame.time.get_ticks() > ice_effect_duration:
-        ice_effect = False
-    
-    if not ice_effect:
+        if game_active:
+            if event.type == pygame.KEYDOWN:
+                key = event.unicode.upper()
+                if key in letters_active:
+                    if isinstance(letters_active[key], Bomb):
+                        pygame.mixer.Sound("assets/sword.mp3").play()
+                        pygame.mixer.Sound("assets/bomb.mp3").play()
+                        lives = 0
+                    elif isinstance(letters_active[key], Ice):
+                        pygame.mixer.Sound("assets/sword.mp3").play()
+                        pygame.mixer.Sound("assets/ice.mp3").play()
+                        ice_effect = True
+                        ice_effect_duration = pygame.time.get_ticks() + random.randint(2000, 3000)
+                    else:
+                        pygame.mixer.Sound("assets/sword.mp3").play()
+                        pygame.mixer.Sound("assets/fruits.mp3").play()
+                        score += 1
+                        if score % 10 == 0:
+                            game_speed += 5
+                    letters_active[key].active = False
+                    del letters_active[key]
+                    available_letters.add(key)
+        else:
+            for button in buttons:
+                button.handle_event(event)
+
+    if game_active:
+        if ice_effect and pygame.time.get_ticks() > ice_effect_duration:
+            ice_effect = False
+        
         next_spawn_time -= 1
         if next_spawn_time <= 0:
             spawn_object()
@@ -147,39 +213,53 @@ while running:
             if next_ice_spawn_time <= 0:
                 spawn_object(is_ice=True)
                 next_ice_spawn_time = random.randint(300, 400)
-    
-    for obj_list in [fruits, ices]:
-        for obj in obj_list[:]:
-            obj.move()
-            obj.draw(screen)
-            if obj.y > HEIGHT and obj.active and not isinstance(obj, Ice):
-                lives -= 1
-                obj_list.remove(obj)
-                if obj.letter in letters_active:
-                    del letters_active[obj.letter]
-                    available_letters.add(obj.letter)
-    
-    for obj in bombs[:]:
-        obj.move()
-        obj.draw(screen)
-        if obj.y > HEIGHT and obj.active:
-            bombs.remove(obj)
-            if obj.letter in letters_active:
-                del letters_active[obj.letter]
-                available_letters.add(obj.letter)
-    
-    score_text = font.render(f"Score: {score}", True, RED)
-    lives_text = font.render(f"Vies: {lives}", True, RED)
-    screen.blit(score_text, (10, 10))
-    screen.blit(lives_text, (10, 50))
-    
-    if lives <= 0:
-        game_over_text = font.render("GAME OVER", True, RED)
-        screen.blit(game_over_text, (WIDTH//2 - 80, HEIGHT//2))
-        pygame.display.update()
-        pygame.time.delay(2000)
-        running = False
-    
+        
+        for obj_list in [fruits, bombs, ices]:
+            for obj in obj_list:
+                obj.move()
+        
+        for obj_list in [fruits, bombs, ices]:
+            for obj in obj_list[:]:
+                if obj.y > HEIGHT and obj.active:
+                    if obj_list != bombs and obj_list != ices:
+                        lives -= 1
+                    obj_list.remove(obj)
+                    if obj.letter in letters_active:
+                        del letters_active[obj.letter]
+                        available_letters.add(obj.letter)
+        
+        if lives <= 0:
+            screen.blit(background_image, (0, 0))
+            game_over_text = font.render("GAME OVER", True, RED)
+            screen.blit(game_over_text, (WIDTH//2 - 80, HEIGHT//2))
+            pygame.display.update()
+            
+            start_time = pygame.time.get_ticks()
+            while pygame.time.get_ticks() - start_time < 2000:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                        pygame.quit()
+                        exit()
+                pygame.time.delay(10)
+            game_active = False
+
+    if game_active:
+        for fruit in fruits:
+            fruit.draw(screen)
+        for bomb in bombs:
+            bomb.draw(screen)
+        for ice in ices:
+            ice.draw(screen)
+        
+        score_text = font.render(f"Score: {score}", True, RED)
+        lives_text = font.render(f"Lives: {lives}", True, RED)
+        screen.blit(score_text, (10, 10))
+        screen.blit(lives_text, (10, 50))
+    else:
+        for button in buttons:
+            button.draw(screen)
+
     pygame.display.update()
     clock.tick(game_speed if not ice_effect else 0)
 
