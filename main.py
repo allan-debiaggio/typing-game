@@ -13,6 +13,62 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
+# Add a dictionary to store text in different languages
+LANGUAGES = {
+    "English": {
+        "new_game": "New Game",
+        "leaderboards": "Leaderboards",
+        "trigger_mode": "Trigger Mode",
+        "language": "Language",
+        "quit": "Quit",
+        "game_over": "GAME OVER",
+        "score": "Score",
+        "lives": "Lives",
+    },
+    "French" : {
+        "new_game" : "Nouvelle partie",
+        "leaderboards":"Scores",
+        "trigger_mode":"Changer de mode",
+        "language":"Langue",
+        "quit":"Quitter",
+        "game_over":"FIN DE PARTIE",
+        "score":"Points",
+        "lives":"Vies",
+    },
+    "Spanish" : {
+        "new_game" : "Nueva partida",
+        "leaderboards" : "Marcador",
+        "trigger_mode":"Cambiar el modo de juego",
+        "language" : "Idioma",
+        "quit":"Salir",
+        "game_over":"JUEGO TERMINADO",
+        "score" : "Puntos",
+        "lives" : "Vidas",
+    }
+    # Add more languages here as needed
+}
+
+# Initialize the current language
+current_language = "English"
+
+# Function to switch languages
+def language():
+    global current_language
+    # Cycle through available languages
+    languages = list(LANGUAGES.keys())
+    current_index = languages.index(current_language)
+    next_index = (current_index + 1) % len(languages)
+    current_language = languages[next_index]
+    update_texts()  # Update all texts in the game
+
+# Function to update all texts in the game
+def update_texts():
+    new_game_button.text = LANGUAGES[current_language]["new_game"]
+    scores_button.text = LANGUAGES[current_language]["leaderboards"]
+    render_button.text = LANGUAGES[current_language]["trigger_mode"]
+    language_button.text = LANGUAGES[current_language]["language"]
+    quit_button.text = LANGUAGES[current_language]["quit"]
+
 class GameState:
     def __init__(self):
         self.artist_mode = False
@@ -46,14 +102,13 @@ class GameState:
             self.ice_image = pygame.image.load("assets/ice.png")
             self.background_image = pygame.image.load("assets/background.png")
             self.icon_image = pygame.image.load("assets/icon.png")
-            self.button_image = pygame.image.load("assets/log.png")  # Log to change with artist asset
-
-            # Artist mode audio (keep existing paths)
+            self.button_image = pygame.image.load("assets/log.png")
+            # Artist mode audio
             self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
             self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
             self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
             self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
-        else:  # Classic mode
+        else:
             # Classic mode assets
             self.fruits_images = {
                 "apple": pygame.image.load("assets/classic_mode/classic_lemon.png"),
@@ -67,12 +122,11 @@ class GameState:
             self.background_image = pygame.image.load("assets/classic_mode/classic_background.jpg")
             self.icon_image = pygame.image.load("assets/classic_mode/classic_icon.png")
             self.button_image = pygame.image.load("assets/classic_mode/classic_log.png")
-
-            # Classic mode audio (placeholders for now)
-            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")  # Replace with classic mode sword sound
-            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")  # Replace with classic mode bomb sound
-            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")  # Replace with classic mode ice sound
-            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")  # Replace with classic mode fruit sound
+            # Classic mode audio
+            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
+            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
+            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
+            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
 
         # Scale images
         for key in self.fruits_images:
@@ -124,11 +178,11 @@ class GameState:
     def spawn_object(self, is_bomb=False, is_ice=False):
         if not self.available_letters:
             return
-        
+
         x = random.randint(100, WIDTH - 100)
         letter = random.choice(list(self.available_letters))
         self.available_letters.remove(letter)
-        
+
         if is_bomb:
             obj = Bomb(x, self.bomb_image, letter)
             self.bombs.append(obj)
@@ -141,7 +195,7 @@ class GameState:
             self.fruits.append(obj)
         self.letters_active[letter] = obj
 
-# Initialize game state
+
 game_state = GameState()
 
 font = pygame.font.Font("assets/classic_mode/font.ttf", 26)
@@ -152,9 +206,6 @@ def quit_game():
 
 def scores():
     print("Scores !")
-
-def language():
-    print("Bonjour ! Hello ! Hola !")
 
 class Fruit:
     def __init__(self, x, image, letter):
@@ -184,7 +235,7 @@ class Button:
     def __init__(self, x, y, width, height, text, action):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
-        self.action = action 
+        self.action = action
         self.image = pygame.transform.scale(game_state.button_image, (width, height))
 
     def draw(self, screen):
@@ -204,11 +255,12 @@ class Bomb(Fruit):
 class Ice(Fruit):
     pass
 
-new_game_button = Button(200, 50, 400, 50, "New game", game_state.start_game)
-scores_button = Button(200, 125, 400, 50, "Leaderboards", scores)
-render_button = Button(200, 200, 400, 50, "Trigger mode", game_state.trigger)
-language_button = Button(200, 275, 400, 50, "Language", language)
-quit_button = Button(200, 350, 400, 50, "Quit", quit_game)
+# Initialize buttons with English text
+new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"], game_state.start_game)
+scores_button = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"], scores)
+render_button = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"], game_state.trigger)
+language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"], language)
+quit_button = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"], quit_game)
 buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
 clock = pygame.time.Clock()
@@ -222,7 +274,7 @@ while running:
             running = False
         if game_state.game_active:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:  # Check for ESC key press
+                if event.key == pygame.K_ESCAPE:
                     game_state.return_to_menu()
                 key = event.unicode.upper()
                 if key in game_state.letters_active:
@@ -254,27 +306,27 @@ while running:
     if game_state.game_active:
         if game_state.ice_effect and pygame.time.get_ticks() > game_state.ice_effect_duration:
             game_state.ice_effect = False
-        
+
         game_state.next_spawn_time -= 1
         if game_state.next_spawn_time <= 0:
             game_state.spawn_object()
             game_state.next_spawn_time = random.randint(20, 60)
-        
+
         game_state.next_bomb_spawn_time -= 1
         if game_state.next_bomb_spawn_time <= 0:
             game_state.spawn_object(is_bomb=True)
             game_state.next_bomb_spawn_time = random.randint(100, 200)
-        
+
         if game_state.score >= 50:
             game_state.next_ice_spawn_time -= 1
             if game_state.next_ice_spawn_time <= 0:
                 game_state.spawn_object(is_ice=True)
                 game_state.next_ice_spawn_time = random.randint(300, 400)
-        
+
         for obj_list in [game_state.fruits, game_state.bombs, game_state.ices]:
             for obj in obj_list:
                 obj.move()
-        
+
         for obj_list in [game_state.fruits, game_state.bombs, game_state.ices]:
             for obj in obj_list[:]:
                 if obj.y > HEIGHT and obj.active:
@@ -284,13 +336,13 @@ while running:
                     if obj.letter in game_state.letters_active:
                         del game_state.letters_active[obj.letter]
                         game_state.available_letters.add(obj.letter)
-        
+
         if game_state.lives <= 0:
             screen.blit(game_state.background_image, (0, 0))
-            game_over_text = font.render("GAME OVER", True, RED)
-            screen.blit(game_over_text, (WIDTH//2 - 80, HEIGHT//2))
+            game_over_text = font.render(LANGUAGES[current_language]["game_over"], True, RED)
+            screen.blit(game_over_text, (WIDTH // 2 - 80, HEIGHT // 2))
             pygame.display.update()
-            
+
             start_time = pygame.time.get_ticks()
             while pygame.time.get_ticks() - start_time < 2000:
                 for event in pygame.event.get():
@@ -308,9 +360,9 @@ while running:
             bomb.draw(screen)
         for ice in game_state.ices:
             ice.draw(screen)
-        
-        score_text = font.render(f"Score: {game_state.score}", True, RED)
-        lives_text = font.render(f"Lives: {game_state.lives}", True, RED)
+
+        score_text = font.render(f"{LANGUAGES[current_language]['score']}: {game_state.score}", True, RED)
+        lives_text = font.render(f"{LANGUAGES[current_language]['lives']}: {game_state.lives}", True, RED)
         screen.blit(score_text, (10, 10))
         screen.blit(lives_text, (10, 50))
     else:
