@@ -36,43 +36,43 @@ class GameState:
         if mode == "artist_mode":
             # Artist mode assets
             self.fruits_images = {
-                "apple": pygame.image.load("assets/apple.png"),
-                "banana": pygame.image.load("assets/banana.png"),
-                "cherry": pygame.image.load("assets/cherry.png"),
-                "watermelon": pygame.image.load("assets/watermelon.png"),
-                "purple_fruit": pygame.image.load("assets/Purple_fruit.png"),
+                "apple": pygame.image.load("assets/trigger_mode/images_trigger/apple.png"),
+                "banana": pygame.image.load("assets/trigger_mode/images_trigger/banana.png"),
+                "cherry": pygame.image.load("assets/trigger_mode/images_trigger/cherry.png"),
+                "watermelon": pygame.image.load("assets/trigger_mode/images_trigger/watermelon.png"),
+                "purple_fruit": pygame.image.load("assets/trigger_mode/images_trigger/Purple_fruit.png"),
             }
-            self.bomb_image = pygame.image.load("assets/bomb.png")
-            self.ice_image = pygame.image.load("assets/ice.png")
-            self.background_image = pygame.image.load("assets/background.png")
-            self.icon_image = pygame.image.load("assets/icon.png")
-            self.button_image = pygame.image.load("assets/log.png")  # Log to change with artist asset
+            self.bomb_image = pygame.image.load("assets/trigger_mode/images_trigger/bomb.png")
+            self.ice_image = pygame.image.load("assets/trigger_mode/images_trigger/ice.png")
+            self.background_image = pygame.image.load("assets/trigger_mode/images_trigger/background.png")
+            self.icon_image = pygame.image.load("assets/trigger_mode/images_trigger/icon.png")
+            self.button_image = pygame.image.load("assets/trigger_mode/images_trigger/log.png")  # Log to change with artist asset
 
             # Artist mode audio (keep existing paths)
-            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
-            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
-            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
-            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
+            self.sword_sound = pygame.mixer.Sound("assets/trigger_mode/sounds_trigger/sword.mp3")
+            self.bomb_sound = pygame.mixer.Sound("assets/trigger_mode/sounds_trigger/bomb.mp3")
+            self.ice_sound = pygame.mixer.Sound("assets/trigger_mode/sounds_trigger/ice.mp3")
+            self.fruit_sound = pygame.mixer.Sound("assets/trigger_mode/sounds_trigger/fruits.mp3")
         else:  # Classic mode
             # Classic mode assets
             self.fruits_images = {
-                "apple": pygame.image.load("assets/classic_mode/classic_lemon.png"),
-                "banana": pygame.image.load("assets/classic_mode/classic_strawberry.png"),
-                "cherry": pygame.image.load("assets/classic_mode/classic_apple.png"),
-                "watermelon": pygame.image.load("assets/classic_mode/classic_watermelon.png"),
-                "purple_fruit": pygame.image.load("assets/classic_mode/classic_grapefruit.png"),
+                "apple": pygame.image.load("assets/classic_mode/images_classic/classic_apple.png"),
+                "banana": pygame.image.load("assets/classic_mode/images_classic/classic_strawberry.png"),
+                "cherry": pygame.image.load("assets/classic_mode/images_classic/classic_lemon.png"),
+                "watermelon": pygame.image.load("assets/classic_mode/images_classic/classic_watermelon.png"),
+                "purple_fruit": pygame.image.load("assets/classic_mode/images_classic/classic_grapefruit.png"),
             }
-            self.bomb_image = pygame.image.load("assets/classic_mode/classic_bomb.png")
-            self.ice_image = pygame.image.load("assets/classic_mode/classic_ice_cube.png")
-            self.background_image = pygame.image.load("assets/classic_mode/classic_background.jpg")
-            self.icon_image = pygame.image.load("assets/classic_mode/classic_icon.png")
-            self.button_image = pygame.image.load("assets/classic_mode/classic_log.png")
+            self.bomb_image = pygame.image.load("assets/classic_mode/images_classic/classic_bomb.png")
+            self.ice_image = pygame.image.load("assets/classic_mode/images_classic/classic_ice_cube.png")
+            self.background_image = pygame.image.load("assets/classic_mode/images_classic/classic_background.jpg")
+            self.icon_image = pygame.image.load("assets/classic_mode/images_classic/classic_icon.png")
+            self.button_image = pygame.image.load("assets/classic_mode/images_classic/classic_log.png")
 
             # Classic mode audio (placeholders for now)
-            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")  # Replace with classic mode sword sound
-            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")  # Replace with classic mode bomb sound
-            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")  # Replace with classic mode ice sound
-            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")  # Replace with classic mode fruit sound
+            self.sword_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/epee_classic.mp3")  # Replace with classic mode sword sound
+            self.bomb_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/Explosion_classic.mp3")  # Replace with classic mode bomb sound
+            self.ice_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/freez_classic.mp3")  # Replace with classic mode ice sound
+            self.fruit_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/fruit_explosion_classic.mp3")  # Replace with classic mode fruit sound
 
         # Scale images
         for key in self.fruits_images:
