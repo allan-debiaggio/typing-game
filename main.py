@@ -107,6 +107,20 @@ class GameState:
         self.next_ice_spawn_time = random.randint(500, 1000)
         self.game_active = True
 
+    def return_to_menu(self):
+        self.game_active = False
+        self.fruits = []
+        self.bombs = []
+        self.ices = []
+        self.letters_active = {}
+        self.available_letters = set(string.ascii_uppercase)
+        self.ice_effect = False
+        self.ice_effect_duration = 0
+        self.game_speed = 30
+        self.next_spawn_time = random.randint(20, 60)
+        self.next_bomb_spawn_time = random.randint(100, 200)
+        self.next_ice_spawn_time = random.randint(500, 1000)
+
     def spawn_object(self, is_bomb=False, is_ice=False):
         if not self.available_letters:
             return
@@ -208,6 +222,8 @@ while running:
             running = False
         if game_state.game_active:
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Check for ESC key press
+                    game_state.return_to_menu()
                 key = event.unicode.upper()
                 if key in game_state.letters_active:
                     if isinstance(game_state.letters_active[key], Bomb):
