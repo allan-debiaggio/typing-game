@@ -34,6 +34,7 @@ class GameState:
 
     def load_assets(self, mode):
         if mode == "artist_mode":
+            # Artist mode assets
             self.fruits_images = {
                 "apple": pygame.image.load("assets/apple.png"),
                 "banana": pygame.image.load("assets/banana.png"),
@@ -44,8 +45,15 @@ class GameState:
             self.bomb_image = pygame.image.load("assets/bomb.png")
             self.ice_image = pygame.image.load("assets/ice.png")
             self.background_image = pygame.image.load("assets/background.png")
-            self.button_image = pygame.image.load("assets/classic_mode/classic_log.png")  # Log to change with artist asset
+            self.button_image = pygame.image.load("assets/log.png")  # Log to change with artist asset
+
+            # Artist mode audio (keep existing paths)
+            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
+            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
+            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
+            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
         else:  # Classic mode
+            # Classic mode assets
             self.fruits_images = {
                 "apple": pygame.image.load("assets/classic_mode/classic_lemon.png"),
                 "banana": pygame.image.load("assets/classic_mode/classic_strawberry.png"),
@@ -57,6 +65,12 @@ class GameState:
             self.ice_image = pygame.image.load("assets/classic_mode/classic_ice_cube.png")
             self.background_image = pygame.image.load("assets/classic_mode/classic_background.jpg")
             self.button_image = pygame.image.load("assets/classic_mode/classic_log.png")
+
+            # Classic mode audio (placeholders for now)
+            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")  # Replace with classic mode sword sound
+            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")  # Replace with classic mode bomb sound
+            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")  # Replace with classic mode ice sound
+            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")  # Replace with classic mode fruit sound
 
         # Scale images
         for key in self.fruits_images:
@@ -70,6 +84,9 @@ class GameState:
         self.artist_mode = not self.artist_mode
         mode = "artist_mode" if self.artist_mode else "classic_mode"
         self.load_assets(mode)
+        # Update all button images
+        for button in buttons:
+            button.image = pygame.transform.scale(self.button_image, (button.rect.width, button.rect.height))
 
     def start_game(self):
         self.score = 0
@@ -191,17 +208,17 @@ while running:
                 key = event.unicode.upper()
                 if key in game_state.letters_active:
                     if isinstance(game_state.letters_active[key], Bomb):
-                        pygame.mixer.Sound("assets/sword.mp3").play()
-                        pygame.mixer.Sound("assets/bomb.mp3").play()
+                        game_state.sword_sound.play()
+                        game_state.bomb_sound.play()
                         game_state.lives = 0
                     elif isinstance(game_state.letters_active[key], Ice):
-                        pygame.mixer.Sound("assets/sword.mp3").play()
-                        pygame.mixer.Sound("assets/ice.mp3").play()
+                        game_state.sword_sound.play()
+                        game_state.ice_sound.play()
                         game_state.ice_effect = True
                         game_state.ice_effect_duration = pygame.time.get_ticks() + random.randint(2000, 3000)
                     else:
-                        pygame.mixer.Sound("assets/sword.mp3").play()
-                        pygame.mixer.Sound("assets/fruits.mp3").play()
+                        game_state.sword_sound.play()
+                        game_state.fruit_sound.play()
                         game_state.score += 1
                         if game_state.score % 10 == 0:
                             game_state.game_speed += 5
@@ -212,9 +229,8 @@ while running:
             for button in buttons:
                 if button.handle_event(event):
                     if button == render_button:
-                        game_state.trigger()  # Call trigger to update assets
-                        screen.blit(game_state.background_image, (0, 0))  # Update background immediately
-                        render_button.image = pygame.transform.scale(game_state.button_image, (render_button.rect.width, render_button.rect.height))
+                        # The trigger method now updates all button images
+                        pass
 
     if game_state.game_active:
         if game_state.ice_effect and pygame.time.get_ticks() > game_state.ice_effect_duration:
