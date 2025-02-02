@@ -5,7 +5,6 @@ import os
 
 pygame.init()
 
-# --- Configuration générale ---
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Fruit Slicer")
@@ -15,7 +14,6 @@ BLACK = (0, 0, 0)
 RED   = (255, 0, 0)
 BLUE  = (0, 0, 255)
 
-# --- Dictionnaire multilingue ---
 LANGUAGES = {
     "English": {
         "new_game": "New Game",
@@ -69,7 +67,6 @@ LANGUAGES = {
 
 current_language = "English"
 
-# --- Fonctions de changement de langue et mise à jour des textes ---
 def language():
     global current_language
     languages = list(LANGUAGES.keys())
@@ -89,7 +86,6 @@ def update_texts():
     for button, key in zip(leaderboard_buttons, ["easy", "medium", "hard", "back"]):
         button.text = LANGUAGES[current_language][key]
 
-# --- Fonctions de leaderboard ---
 def update_leaderboard(name, score, difficulty):
     filename = f"leaderboard_{difficulty}.txt"
     entries = []
@@ -169,7 +165,6 @@ def display_leaderboard(difficulty):
         pygame.display.flip()
         clock.tick(30)
 
-# --- Classe SlicedFruit pour les morceaux de fruits tranchés ---
 class SlicedFruit:
     def __init__(self, x, y, image, vx, vy, rotation_speed=0, gravity=0.3):
         self.x = x
@@ -193,19 +188,18 @@ class SlicedFruit:
         rect = rotated_image.get_rect(center=(self.x, self.y))
         screen.blit(rotated_image, rect)
 
-# --- Classe GameState ---
 class GameState:
     def __init__(self):
         self.artist_mode = False
-        self.load_assets("classic_mode")  # démarre en mode classique
+        self.load_assets("classic_mode")
         self.game_active = False
         self.score = 0
         self.lives = 3
         self.fruits = []
         self.bombs = []
         self.ices = []
-        self.sliced_fruits = []  # pour stocker les morceaux tranchés
-        self.letters_active = {}  # lettre -> liste d'objets (fruits, bombes, glaces)
+        self.sliced_fruits = []
+        self.letters_active = {}
         self.available_letters = set(string.ascii_uppercase)
         self.ice_effect = False
         self.ice_effect_duration = 0
@@ -213,14 +207,13 @@ class GameState:
         self.next_spawn_time = random.randint(20, 60)
         self.next_bomb_spawn_time = random.randint(100, 200)
         self.next_ice_spawn_time = random.randint(500, 1000)
-        self.speed_factor = 1.0  # coefficient selon la difficulté
+        self.speed_factor = 1.0
         self.combo_texts = []
-        self.menu = "main"  # "main", "difficulty" ou "leaderboard"
+        self.menu = "main"
         self.difficulty = "Medium"
 
     def load_assets(self, mode):
         if mode == "artist_mode":
-            # Assets mode normal
             self.fruits_images = {
                 "apple": pygame.image.load("assets/apple.png"),
                 "banana": pygame.image.load("assets/banana.png"),
@@ -254,7 +247,6 @@ class GameState:
             self.music = "assets/sounds/music.mp3"
             self.button_sound = pygame.mixer.Sound("assets/sounds/button.mp3")
         else:
-            # Assets mode classic
             self.fruits_images = {
                 "apple": pygame.image.load("assets/classic_mode/classic_lemon.png"),
                 "banana": pygame.image.load("assets/classic_mode/classic_strawberry.png"),
@@ -287,8 +279,6 @@ class GameState:
             self.fruit_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/fruits_classic.mp3")
             self.music = "assets/classic_mode/sounds_classic/music_classic.mp3"
             self.button_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/button_classic.mp3")
-
-        # Redimensionnement des images
         for key in self.fruits_images:
             self.fruits_images[key] = pygame.transform.scale(self.fruits_images[key], (60, 60))
         for key in self.fruits_sliced_left:
@@ -404,7 +394,6 @@ class GameState:
             else:
                 self.letters_active[letter] = [obj]
 
-# --- Classe Fruit ---
 class Fruit:
     def __init__(self, x, image, letter, fruit_type, speed_factor=1.0):
         self.x = x
@@ -431,7 +420,6 @@ class Fruit:
             text = font.render(self.letter, True, RED)
             screen.blit(text, (self.x + 20, self.y - 30))
 
-# --- Classes Bomb et Ice (héritées de Fruit) ---
 class Bomb(Fruit):
     def __init__(self, x, image, letter, speed_factor=1.0):
         super().__init__(x, image, letter, "bomb", speed_factor=speed_factor)
@@ -440,7 +428,6 @@ class Ice(Fruit):
     def __init__(self, x, image, letter, speed_factor=1.0):
         super().__init__(x, image, letter, "ice", speed_factor=speed_factor)
 
-# --- Classe Button ---
 class Button:
     def __init__(self, x, y, width, height, text, action, game_state):
         self.rect = pygame.Rect(x, y, width, height)
@@ -461,11 +448,9 @@ class Button:
                 self.game_state.button_sound.play()
                 self.action()
 
-# --- Instanciation des menus ---
 game_state = GameState()
 font = pygame.font.Font("assets/classic_mode/font.ttf", 26)
 
-# Boutons du menu principal
 new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"],
                          lambda: setattr(game_state, "menu", "difficulty"), game_state)
 scores_button   = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"],
@@ -478,7 +463,6 @@ quit_button     = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"],
                          lambda: (pygame.quit(), exit()), game_state)
 buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
-# Boutons du menu de difficulté
 easy_button = Button(200, 100, 400, 50, LANGUAGES[current_language]["easy"],
                      lambda: game_state.start_game("Easy"), game_state)
 medium_button = Button(200, 175, 400, 50, LANGUAGES[current_language]["medium"],
@@ -489,7 +473,6 @@ back_button = Button(200, 325, 400, 50, LANGUAGES[current_language]["back"],
                      lambda: setattr(game_state, "menu", "main"), game_state)
 difficulty_buttons = [easy_button, medium_button, hard_button, back_button]
 
-# Boutons du menu leaderboard
 lb_easy_button = Button(200, 100, 400, 50, LANGUAGES[current_language]["easy"],
                         lambda: display_leaderboard("Easy"), game_state)
 lb_medium_button = Button(200, 175, 400, 50, LANGUAGES[current_language]["medium"],
