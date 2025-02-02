@@ -108,6 +108,8 @@ class GameState:
             self.bomb_sound = pygame.mixer.Sound("assets/sounds/bomb.mp3")
             self.ice_sound = pygame.mixer.Sound("assets/sounds/ice.mp3")
             self.fruit_sound = pygame.mixer.Sound("assets/sounds/fruits.mp3")
+            self.music = "assets/sounds/music.mp3"
+            self.button_sound = pygame.mixer.Sound("assets/sounds/button.mp3")
         else:
             # Classic mode assets
             self.fruits_images = {
@@ -127,6 +129,8 @@ class GameState:
             self.bomb_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/bomb_classic.mp3")
             self.ice_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/ice_classic.mp3")
             self.fruit_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/fruits_classic.mp3")
+            self.music = "assets/classic_mode/sounds_classic/music_classic.mp3"
+            self.button_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/button_classic.mp3")
 
         # Scale images
         for key in self.fruits_images:
@@ -141,6 +145,9 @@ class GameState:
         self.artist_mode = not self.artist_mode
         mode = "artist_mode" if self.artist_mode else "classic_mode"
         self.load_assets(mode)
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(self.music)
+
         # Update all button images
         for button in buttons:
             button.image = pygame.transform.scale(self.button_image, (button.rect.width, button.rect.height))
@@ -160,6 +167,8 @@ class GameState:
         self.next_bomb_spawn_time = random.randint(100, 200)
         self.next_ice_spawn_time = random.randint(500, 1000)
         self.game_active = True
+        pygame.mixer.music.load(self.music)
+        pygame.mixer.music.play(-1)
 
     def return_to_menu(self):
         self.game_active = False
@@ -174,6 +183,7 @@ class GameState:
         self.next_spawn_time = random.randint(20, 60)
         self.next_bomb_spawn_time = random.randint(100, 200)
         self.next_ice_spawn_time = random.randint(500, 1000)
+        pygame.mixer.music.stop()
 
     def spawn_object(self, is_bomb=False, is_ice=False):
         if not self.available_letters:
@@ -231,15 +241,13 @@ class Fruit:
             text = font.render(self.letter, True, RED)
             screen.blit(text, (self.x + 20, self.y - 30))
 
-button_sound = pygame.mixer.Sound("assets/sounds/button.mp3")
-
 class Button:
-    def __init__(self, x, y, width, height, text, action, sound = None):
+    def __init__(self, x, y, width, height, text, action, game_state):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.action = action
         self.image = pygame.transform.scale(game_state.button_image, (width, height))
-        self.sound = sound
+        self.game_state = game_state
 
     def draw(self, screen):
         screen.blit(self.image, self.rect.topleft)
@@ -249,10 +257,10 @@ class Button:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                if self.sound:
-                    self.sound.play()
-                self.action()
+            if event.button == 1 :
+                if self.rect.collidepoint(event.pos):
+                    self.game_state.button_sound.play()
+                    self.action()
 
 class Bomb(Fruit):
     pass
@@ -261,11 +269,11 @@ class Ice(Fruit):
     pass
 
 # Initialize buttons with English text
-new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"], game_state.start_game, button_sound)
-scores_button = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"], scores, button_sound)
-render_button = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"], game_state.trigger, button_sound)
-language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"], language, button_sound)
-quit_button = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"], quit_game, button_sound)
+new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"], game_state.start_game, game_state)
+scores_button = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"], scores, game_state)
+render_button = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"], game_state.trigger, game_state)
+language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"], language, game_state)
+quit_button = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"], quit_game, game_state)
 buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
 clock = pygame.time.Clock()
@@ -346,6 +354,7 @@ while running:
             screen.blit(game_state.background_image, (0, 0))
             game_over_text = font.render(LANGUAGES[current_language]["game_over"], True, RED)
             screen.blit(game_over_text, (WIDTH // 2 - 80, HEIGHT // 2))
+            pygame.mixer.music.stop()
             pygame.display.update()
 
             start_time = pygame.time.get_ticks()
