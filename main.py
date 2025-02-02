@@ -104,10 +104,10 @@ class GameState:
             self.icon_image = pygame.image.load("assets/icon.png")
             self.button_image = pygame.image.load("assets/log.png")
             # Artist mode audio
-            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
-            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
-            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
-            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
+            self.sword_sound = pygame.mixer.Sound("assets/sounds/sword.mp3")
+            self.bomb_sound = pygame.mixer.Sound("assets/sounds/bomb.mp3")
+            self.ice_sound = pygame.mixer.Sound("assets/sounds/ice.mp3")
+            self.fruit_sound = pygame.mixer.Sound("assets/sounds/fruits.mp3")
         else:
             # Classic mode assets
             self.fruits_images = {
@@ -123,10 +123,10 @@ class GameState:
             self.icon_image = pygame.image.load("assets/classic_mode/classic_icon.png")
             self.button_image = pygame.image.load("assets/classic_mode/classic_log.png")
             # Classic mode audio
-            self.sword_sound = pygame.mixer.Sound("assets/sword.mp3")
-            self.bomb_sound = pygame.mixer.Sound("assets/bomb.mp3")
-            self.ice_sound = pygame.mixer.Sound("assets/ice.mp3")
-            self.fruit_sound = pygame.mixer.Sound("assets/fruits.mp3")
+            self.sword_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/sword_classic.mp3")
+            self.bomb_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/bomb_classic.mp3")
+            self.ice_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/ice_classic.mp3")
+            self.fruit_sound = pygame.mixer.Sound("assets/classic_mode/sounds_classic/fruits_classic.mp3")
 
         # Scale images
         for key in self.fruits_images:
@@ -231,7 +231,7 @@ class Fruit:
             text = font.render(self.letter, True, RED)
             screen.blit(text, (self.x + 20, self.y - 30))
 
-button_sound = pygame.mixer.Sound("assets/play.mp3")
+button_sound = pygame.mixer.Sound("assets/sounds/button.mp3")
 
 class Button:
     def __init__(self, x, y, width, height, text, action, sound = None):
