@@ -37,7 +37,7 @@ LANGUAGES = {
     },
     "Spanish" : {
         "new_game" : "Nueva partida",
-        "leaderboards" : "Marcador",
+        "leaderboards" : "Puntaje",
         "trigger_mode":"Cambiar el modo de juego",
         "language" : "Idioma",
         "quit":"Salir",
@@ -231,12 +231,15 @@ class Fruit:
             text = font.render(self.letter, True, RED)
             screen.blit(text, (self.x + 20, self.y - 30))
 
+button_sound = pygame.mixer.Sound("assets/play.mp3")
+
 class Button:
-    def __init__(self, x, y, width, height, text, action):
+    def __init__(self, x, y, width, height, text, action, sound = None):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.action = action
         self.image = pygame.transform.scale(game_state.button_image, (width, height))
+        self.sound = sound
 
     def draw(self, screen):
         screen.blit(self.image, self.rect.topleft)
@@ -247,6 +250,8 @@ class Button:
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
+                if self.sound:
+                    self.sound.play()
                 self.action()
 
 class Bomb(Fruit):
@@ -256,11 +261,11 @@ class Ice(Fruit):
     pass
 
 # Initialize buttons with English text
-new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"], game_state.start_game)
-scores_button = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"], scores)
-render_button = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"], game_state.trigger)
-language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"], language)
-quit_button = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"], quit_game)
+new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"], game_state.start_game, button_sound)
+scores_button = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"], scores, button_sound)
+render_button = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"], game_state.trigger, button_sound)
+language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"], language, button_sound)
+quit_button = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"], quit_game, button_sound)
 buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
 clock = pygame.time.Clock()
