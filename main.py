@@ -450,7 +450,7 @@ class Button:
                 self.action()
 
 game_state = GameState()
-font = pygame.font.Font("assets/classic_mode/font.ttf", 26)
+font = pygame.font.SysFont("Arial", 26)
 
 new_game_button = Button(200, 50, 400, 50, LANGUAGES[language.current_language]["new_game"], lambda: setattr(game_state, "menu", "difficulty"), game_state)
 scores_button = Button(200, 125, 400, 50, LANGUAGES[language.current_language]["leaderboards"], lambda: setattr(game_state, "menu", "leaderboard"), game_state)
