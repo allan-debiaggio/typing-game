@@ -65,26 +65,25 @@ LANGUAGES = {
     }
 }
 
-current_language = "English"
-
 def language():
-    global current_language
     languages = list(LANGUAGES.keys())
-    current_index = languages.index(current_language)
+    current_index = languages.index(language.current_language)
     next_index = (current_index + 1) % len(languages)
-    current_language = languages[next_index]
+    language.current_language = languages[next_index]
     update_texts()
 
+language.current_language = "English"
+
 def update_texts():
-    new_game_button.text = LANGUAGES[current_language]["new_game"]
-    scores_button.text = LANGUAGES[current_language]["leaderboards"]
-    render_button.text = LANGUAGES[current_language]["trigger_mode"]
-    language_button.text = LANGUAGES[current_language]["language"]
-    quit_button.text = LANGUAGES[current_language]["quit"]
+    new_game_button.text = LANGUAGES[language.current_language]["new_game"]
+    scores_button.text = LANGUAGES[language.current_language]["leaderboards"]
+    render_button.text = LANGUAGES[language.current_language]["trigger_mode"]
+    language_button.text = LANGUAGES[language.current_language]["language"]
+    quit_button.text = LANGUAGES[language.current_language]["quit"]
     for button, key in zip(difficulty_buttons, ["easy", "medium", "hard", "back"]):
-        button.text = LANGUAGES[current_language][key]
+        button.text = LANGUAGES[language.current_language][key]
     for button, key in zip(leaderboard_buttons, ["easy", "medium", "hard", "back"]):
-        button.text = LANGUAGES[current_language][key]
+        button.text = LANGUAGES[language.current_language][key]
 
 def update_leaderboard(name, score, difficulty):
     filename = f"leaderboard_{difficulty}.txt"
@@ -178,6 +177,8 @@ class SlicedFruit:
         self.active = True
 
     def move(self):
+        if game_state.ice_effect:
+            return
         self.vy += self.gravity
         self.x += self.vx
         self.y += self.vy
@@ -451,36 +452,23 @@ class Button:
 game_state = GameState()
 font = pygame.font.Font("assets/classic_mode/font.ttf", 26)
 
-new_game_button = Button(200, 50, 400, 50, LANGUAGES[current_language]["new_game"],
-                         lambda: setattr(game_state, "menu", "difficulty"), game_state)
-scores_button   = Button(200, 125, 400, 50, LANGUAGES[current_language]["leaderboards"],
-                         lambda: setattr(game_state, "menu", "leaderboard"), game_state)
-render_button   = Button(200, 200, 400, 50, LANGUAGES[current_language]["trigger_mode"],
-                         game_state.trigger, game_state)
-language_button = Button(200, 275, 400, 50, LANGUAGES[current_language]["language"],
-                         language, game_state)
-quit_button     = Button(200, 350, 400, 50, LANGUAGES[current_language]["quit"],
-                         lambda: (pygame.quit(), exit()), game_state)
+new_game_button = Button(200, 50, 400, 50, LANGUAGES[language.current_language]["new_game"], lambda: setattr(game_state, "menu", "difficulty"), game_state)
+scores_button = Button(200, 125, 400, 50, LANGUAGES[language.current_language]["leaderboards"], lambda: setattr(game_state, "menu", "leaderboard"), game_state)
+render_button = Button(200, 200, 400, 50, LANGUAGES[language.current_language]["trigger_mode"], game_state.trigger, game_state)
+language_button = Button(200, 275, 400, 50, LANGUAGES[language.current_language]["language"], language, game_state)
+quit_button = Button(200, 350, 400, 50, LANGUAGES[language.current_language]["quit"], lambda: (pygame.quit(), exit()), game_state)
 buttons = [new_game_button, scores_button, render_button, language_button, quit_button]
 
-easy_button = Button(200, 100, 400, 50, LANGUAGES[current_language]["easy"],
-                     lambda: game_state.start_game("Easy"), game_state)
-medium_button = Button(200, 175, 400, 50, LANGUAGES[current_language]["medium"],
-                       lambda: game_state.start_game("Medium"), game_state)
-hard_button = Button(200, 250, 400, 50, LANGUAGES[current_language]["hard"],
-                     lambda: game_state.start_game("Hard"), game_state)
-back_button = Button(200, 325, 400, 50, LANGUAGES[current_language]["back"],
-                     lambda: setattr(game_state, "menu", "main"), game_state)
+easy_button = Button(200, 100, 400, 50, LANGUAGES[language.current_language]["easy"], lambda: game_state.start_game("Easy"), game_state)
+medium_button = Button(200, 175, 400, 50, LANGUAGES[language.current_language]["medium"], lambda: game_state.start_game("Medium"), game_state)
+hard_button = Button(200, 250, 400, 50, LANGUAGES[language.current_language]["hard"], lambda: game_state.start_game("Hard"), game_state)
+back_button = Button(200, 325, 400, 50, LANGUAGES[language.current_language]["back"], lambda: setattr(game_state, "menu", "main"), game_state)
 difficulty_buttons = [easy_button, medium_button, hard_button, back_button]
 
-lb_easy_button = Button(200, 100, 400, 50, LANGUAGES[current_language]["easy"],
-                        lambda: display_leaderboard("Easy"), game_state)
-lb_medium_button = Button(200, 175, 400, 50, LANGUAGES[current_language]["medium"],
-                          lambda: display_leaderboard("Medium"), game_state)
-lb_hard_button = Button(200, 250, 400, 50, LANGUAGES[current_language]["hard"],
-                        lambda: display_leaderboard("Hard"), game_state)
-lb_back_button = Button(200, 325, 400, 50, LANGUAGES[current_language]["back"],
-                        lambda: setattr(game_state, "menu", "main"), game_state)
+lb_easy_button = Button(200, 100, 400, 50, LANGUAGES[language.current_language]["easy"], lambda: display_leaderboard("Easy"), game_state)
+lb_medium_button = Button(200, 175, 400, 50, LANGUAGES[language.current_language]["medium"], lambda: display_leaderboard("Medium"), game_state)
+lb_hard_button = Button(200, 250, 400, 50, LANGUAGES[language.current_language]["hard"], lambda: display_leaderboard("Hard"), game_state)
+lb_back_button = Button(200, 325, 400, 50, LANGUAGES[language.current_language]["back"], lambda: setattr(game_state, "menu", "main"), game_state)
 leaderboard_buttons = [lb_easy_button, lb_medium_button, lb_hard_button, lb_back_button]
 
 clock = pygame.time.Clock()
@@ -491,7 +479,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         if game_state.game_active:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -508,6 +495,9 @@ while running:
                         game_state.ice_sound.play()
                         game_state.ice_effect = True
                         game_state.ice_effect_duration = pygame.time.get_ticks() + random.randint(2000, 3000)
+                        for obj in objs:
+                            if isinstance(obj, Ice):
+                                obj.active = False
                     else:
                         game_state.sword_sound.play()
                         game_state.fruit_sound.play()
@@ -549,7 +539,6 @@ while running:
             else:
                 for button in buttons:
                     button.handle_event(event)
-
     if game_state.game_active:
         if game_state.ice_effect and pygame.time.get_ticks() > game_state.ice_effect_duration:
             game_state.ice_effect = False
@@ -603,13 +592,13 @@ while running:
                 screen.blit(text_surface, pos)
             else:
                 game_state.combo_texts.remove(combo)
-        score_text = font.render(f"{LANGUAGES[current_language]['score']}: {game_state.score}", True, RED)
-        lives_text = font.render(f"{LANGUAGES[current_language]['lives']}: {game_state.lives}", True, RED)
+        score_text = font.render(f"{LANGUAGES[language.current_language]['score']}: {game_state.score}", True, RED)
+        lives_text = font.render(f"{LANGUAGES[language.current_language]['lives']}: {game_state.lives}", True, RED)
         screen.blit(score_text, (10, 10))
         screen.blit(lives_text, (10, 50))
         if game_state.lives <= 0:
             screen.blit(game_state.background_image, (0, 0))
-            game_over_text = font.render(LANGUAGES[current_language]["game_over"], True, RED)
+            game_over_text = font.render(LANGUAGES[language.current_language]["game_over"], True, RED)
             screen.blit(game_over_text, (WIDTH//2 - game_over_text.get_width()//2, HEIGHT//2))
             pygame.mixer.music.stop()
             pygame.display.update()
@@ -627,12 +616,12 @@ while running:
             game_state.menu = "main"
     else:
         if game_state.menu == "difficulty":
-            diff_title = font.render(LANGUAGES[current_language]["difficulty_title"], True, WHITE)
+            diff_title = font.render(LANGUAGES[language.current_language]["difficulty_title"], True, WHITE)
             screen.blit(diff_title, (WIDTH//2 - diff_title.get_width()//2, 20))
             for button in difficulty_buttons:
                 button.draw(screen)
         elif game_state.menu == "leaderboard":
-            lb_title = font.render(LANGUAGES[current_language]["lb_title"], True, WHITE)
+            lb_title = font.render(LANGUAGES[language.current_language]["lb_title"], True, WHITE)
             screen.blit(lb_title, (WIDTH//2 - lb_title.get_width()//2, 20))
             for button in leaderboard_buttons:
                 button.draw(screen)
